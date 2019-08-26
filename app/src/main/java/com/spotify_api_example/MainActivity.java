@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private Song song;
 
     private SongService songService;
+    private ArrayList<Song> recentlyPlayedTracks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,16 +51,28 @@ public class MainActivity extends AppCompatActivity {
         addBtn.setOnClickListener(addListener);
     }
 
+    private View.OnClickListener addListener = v -> {
+        songService.addSongToLibrary(this.song);
+        if (recentlyPlayedTracks.size() > 0) {
+            recentlyPlayedTracks.remove(0);
+        }
+        updateSong();
+    };
+
 
     private void getTracks() {
         songService.getRecentlyPlayedTracks(() -> {
-            ArrayList<Song> recentlyPlayedTracks = songService.getSongs();
-            songView.setText(recentlyPlayedTracks.get(0).getName());
-            song = recentlyPlayedTracks.get(0);
+            recentlyPlayedTracks = songService.getSongs();
+            updateSong();
         });
     }
 
-    private View.OnClickListener addListener = v -> {
-        songService.addSongToLibrary(this.song);
-    };
+    private void updateSong() {
+        if (recentlyPlayedTracks.size() > 0) {
+            songView.setText(recentlyPlayedTracks.get(0).getName());
+            song = recentlyPlayedTracks.get(0);
+        }
+    }
+
 }
+
